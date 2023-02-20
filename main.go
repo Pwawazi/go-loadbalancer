@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"time"
 )
 
 type Server interface {
@@ -52,7 +54,19 @@ func handleErr(err error) {
 
 func (s *simpleServer) Address() string { return s.addr }
 
-func (s *simpleServer) isAlive() bool { return true }
+func (s *simpleServer) isAlive() bool {
+	host := s.addr
+	port := "80"
+	timeout := time.Duration(1 * time.Second)
+	_, err := net.DialTimeout("tcp", host+":"+port, timeout)
+	if err != nil {
+		fmt.Printf("%s %s %s\n", host, "not responding", err.Error())
+		return false
+	} else {
+		fmt.Printf("%s %s %s\n", host, "responding on port:", port)
+		return true
+	}
+}
 
 func (s *simpleServer) Serve(rw http.ResponseWriter, req *http.Request) {
 	s.proxy.ServeHTTP(rw, req)
