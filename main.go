@@ -58,12 +58,14 @@ func (s *simpleServer) isAlive() bool {
 	host := s.addr
 	port := "80"
 	timeout := time.Duration(1 * time.Second)
-	_, err := net.DialTimeout("tcp", host+":"+port, timeout)
+	conn, err := net.DialTimeout("tcp", host+":"+port, timeout)
 	if err != nil {
 		fmt.Printf("%s %s %s\n", host, "not responding", err.Error())
+		conn.Close()
 		return false
 	} else {
 		fmt.Printf("%s %s %s\n", host, "responding on port:", port)
+		conn.Close()
 		return true
 	}
 }
